@@ -212,7 +212,7 @@ export const changeMemberRole = async (userId, workspaceId, role) => {
   });
 };
 
-export const deleteMemberFromWorkspace = async(userId, workspaceId) => {
+export const deleteMemberFromWorkspace = async (userId, workspaceId) => {
   return await prisma.$transaction(async (tx) => {
     const workspaceMember = await tx.workspaceMember.findFirst({
       where: {
@@ -233,4 +233,30 @@ export const deleteMemberFromWorkspace = async(userId, workspaceId) => {
 
     return true;
   });
+};
+
+export const getAllProjectsInsideWorkspace = async (userId, workspaceId) => {
+
+  return await prisma.$transaction(async (tx) => {
+    const workspaceMember = await tx.workspaceMember.findFirst({
+      where: {
+        userId: Number(userId),
+        workspaceId: Number(workspaceId),
+      },
+    });
+    if (!workspaceMember) {
+      throw new Error("You are not a member of this workspace");
+    }
+    return await tx.project.findMany({
+      where: {
+        workspaceId: Number(workspaceMember.workspaceId),
+      },
+      select: {
+        id: true,
+        name: true,
+        workspaceId: true,
+      },
+    });
+  });
+
 };

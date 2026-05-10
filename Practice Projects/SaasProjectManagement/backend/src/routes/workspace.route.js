@@ -37,4 +37,11 @@ router.delete(
   workspaceController.deleteMemberFromWorkspace,
 );
 
+router.get(
+  "/:workspaceId/projects",
+  authUser,
+  allowRoles(WorkspaceRole.OWNER, WorkspaceRole.ADMIN, WorkspaceRole.MEMBER),
+  workspaceController.getAllProjectsInsideWorkspace,
+);
+
 export default router;

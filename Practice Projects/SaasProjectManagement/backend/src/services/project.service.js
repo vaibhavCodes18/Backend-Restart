@@ -21,3 +21,4 @@ export const createProject = async (data) => {
     throw error;
   }
 };
+

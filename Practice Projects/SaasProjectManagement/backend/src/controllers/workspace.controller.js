@@ -54,3 +54,11 @@ export const deleteMemberFromWorkspace = async (req, res) => {
     message: "Member Deleted Successfully",
   });
 };
+
+export const getAllProjectsInsideWorkspace = async (req, res) => {
+  return res.status(200).json({
+    success: true,
+    data: await workspaceService.getAllProjectsInsideWorkspace(req.user.id, req.params.workspaceId),
+    message: "All Projects Inside Workspace Fetched Successfully",
+  });
+};
