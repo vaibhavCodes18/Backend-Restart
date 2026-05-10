@@ -6,12 +6,12 @@ export const allowRoles = (...roles) => {
     const workspaceMember = await prisma.workspaceMember.findFirst({
       where: {
           userId: req.user.id,
-          workspaceId: Number(req.params.workspaceId),
+          workspaceId: Number(req.params.workspaceId) || req.body.workspaceId,
       },
     });
 
     if (!workspaceMember) {
-      return res.status(404).json({ error: "Workspace member not found. Only owner and admin can add members" });
+      return res.status(404).json({ error: "Workspace member not found." });
     }
 
     if (!roles.includes(workspaceMember.role)) {
