@@ -8,6 +8,6 @@ const router = Router();
 
 router.use("/auth", authRouter);
 router.use("/workspaces", workspaceRouter);
-router.use("/projects", projectRouter);
+router.use("/workspaces/:workspaceId/projects", projectRouter);
 
 export default router;

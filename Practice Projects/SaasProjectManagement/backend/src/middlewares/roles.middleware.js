@@ -5,17 +5,23 @@ export const allowRoles = (...roles) => {
   return async (req, res, next) => {
     const workspaceMember = await prisma.workspaceMember.findFirst({
       where: {
-          userId: req.user.id,
-          workspaceId: Number(req.params.workspaceId) || req.body.workspaceId,
+        userId: req.user.id,
+        workspaceId: Number(req.params.workspaceId),
       },
     });
 
     if (!workspaceMember) {
-      return res.status(404).json({ error: "Workspace member not found." });
+      return res
+        .status(404)
+        .json({ error: "You're not a member of this workspace." });
     }
 
     if (!roles.includes(workspaceMember.role)) {
-      return res.status(403).json({ error: "Forbidden. Only owner and admin can perform this action" });
+      return res
+        .status(403)
+        .json({
+          error: "Forbidden. Only owner and admin can perform this action",
+        });
     }
     next();
   };
