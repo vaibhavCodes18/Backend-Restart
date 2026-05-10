@@ -34,5 +34,12 @@ router.put(
   projectController.updateProject,
 );
 
+router.delete(
+  "/:projectId",
+  authUser,
+  allowRoles(WorkspaceRole.OWNER, WorkspaceRole.ADMIN),
+  projectController.deleteProject,
+);
+
 
 export default router;

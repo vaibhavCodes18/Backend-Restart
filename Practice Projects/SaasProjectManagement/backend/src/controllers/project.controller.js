@@ -56,3 +56,18 @@ export const updateProject = async(req,res)=>{
     }
 }
     
+export const deleteProject = async(req,res)=>{
+    try {
+        await projectService.deleteProject(req.params.workspaceId, req.params.projectId);
+        return res.status(200).json({
+            success: true,
+            data: true,
+            message: "Project deleted successfully.",
+        });
+    } catch (error) {
+        return res.status(500).json({
+            success: false,
+            error: error.message,
+        });
+    }
+}

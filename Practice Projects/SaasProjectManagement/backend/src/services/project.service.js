@@ -11,6 +11,7 @@ export const createProject = async (data, workspaceId) => {
     const project = await prisma.project.create({
       data: {
         name,
+        deletedAt: null,
         workspace: {
           connect: { id: Number(workspaceId) },
         },
@@ -36,6 +37,7 @@ export const getAllProjectsInsideWorkspace = async (userId, workspaceId) => {
     return await tx.project.findMany({
       where: {
         workspaceId: Number(workspaceMember.workspaceId),
+        deletedAt: null,
       },
       select: {
         id: true,
@@ -50,6 +52,7 @@ export const getProjectDetail = async (projectId) => {
     return await prisma.project.findUnique({
       where: {
         id: Number(projectId),
+        deletedAt: null,
       },
       include: {
         tasks: true,
@@ -65,7 +68,20 @@ export const updateProject = async (data, workspaceId, projectId) => {
     where: {
       id: Number(projectId),
       workspaceId: Number(workspaceId),
+      deletedAt: null,
     },
     data,
+  });
+};
+
+export const deleteProject = async (workspaceId, projectId) => {
+  return await prisma.project.update({
+    where: {
+      id: Number(projectId),
+      workspaceId: Number(workspaceId),
+    },
+    data: {
+      deletedAt: new Date(),
+    },
   });
 };
