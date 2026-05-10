@@ -260,3 +260,17 @@ export const getAllProjectsInsideWorkspace = async (userId, workspaceId) => {
   });
 
 };
+export const getProjectDetail = async(projectId) => {
+  try {
+    return await prisma.project.findUnique({
+      where: {
+        id: Number(projectId),
+      },
+      include: {
+        tasks: true,
+      },
+    });
+  } catch (error) {
+    throw error;
+  }
+};

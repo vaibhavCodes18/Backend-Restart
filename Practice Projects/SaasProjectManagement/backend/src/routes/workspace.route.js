@@ -44,4 +44,11 @@ router.get(
   workspaceController.getAllProjectsInsideWorkspace,
 );
 
+router.get(
+  "/:workspaceId/projects/:projectId",
+  authUser,
+  allowRoles(WorkspaceRole.OWNER, WorkspaceRole.ADMIN, WorkspaceRole.MEMBER),
+  workspaceController.getProjectDetail
+);
+
 export default router;
