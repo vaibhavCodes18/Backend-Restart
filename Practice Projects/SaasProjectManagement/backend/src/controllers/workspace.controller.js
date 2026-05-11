@@ -1,11 +1,18 @@
 import * as workspaceService from "../services/workspace.service.js";
 
 export const createWorkspace = async (req, res) => {
-  return res.status(201).json({
-    success: true,
-    data: await workspaceService.createWorkspace(req.body, req.user.id),
-    message: "Workspace Created Successfully",
-  });
+  try {
+    return res.status(201).json({
+      success: true,
+      data: await workspaceService.createWorkspace(req.body, req.user.id),
+      message: "Workspace Created Successfully",
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
 };
 
 export const getMyWorkspaces = async (req, res) => {

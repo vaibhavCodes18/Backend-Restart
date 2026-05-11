@@ -3,11 +3,19 @@ import { Router } from "express";
 import authRouter from "./auth.route.js";
 import workspaceRouter from "./workspace.route.js";
 import projectRouter from "./project.route.js";
+import taskRouter from "./task.route.js";
 
 const router = Router();
-
+// Auth routes
 router.use("/auth", authRouter);
+
+// Workspace routes
 router.use("/workspaces", workspaceRouter);
+
+// project routes
 router.use("/workspaces/:workspaceId/projects", projectRouter);
+
+// Tasks routes
+router.use("/projects/:projectId/tasks", taskRouter);
 
 export default router;
