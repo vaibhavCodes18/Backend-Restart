@@ -3,12 +3,14 @@ import * as projectController from "../controllers/project.controller.js";
 import { authUser } from "../middlewares/auth.middleware.js";
 import { allowRoles } from "../middlewares/roles.middleware.js";
 import { WorkspaceRole } from "@prisma/client";
+import { workspaceAccess } from "../middlewares/workspace.middleware.js";
 
 const router = Router({ mergeParams: true });
 
 router.post(
   "/",
   authUser,
+  workspaceAccess,
   allowRoles("ADMIN", "OWNER"),
   projectController.createProject
 );
@@ -16,6 +18,7 @@ router.post(
 router.get(
   "/",
   authUser,
+  workspaceAccess,
   allowRoles(WorkspaceRole.OWNER, WorkspaceRole.ADMIN, WorkspaceRole.MEMBER),
   projectController.getAllProjectsInsideWorkspace,
 );
@@ -23,6 +26,7 @@ router.get(
 router.get(
   "/:projectId",
   authUser,
+  workspaceAccess,
   allowRoles(WorkspaceRole.OWNER, WorkspaceRole.ADMIN, WorkspaceRole.MEMBER),
   projectController.getProjectDetail
 );
@@ -30,6 +34,7 @@ router.get(
 router.put(
   "/:projectId",
   authUser,
+  workspaceAccess,
   allowRoles(WorkspaceRole.OWNER, WorkspaceRole.ADMIN),
   projectController.updateProject,
 );
@@ -37,6 +42,7 @@ router.put(
 router.delete(
   "/:projectId",
   authUser,
+  workspaceAccess,
   allowRoles(WorkspaceRole.OWNER, WorkspaceRole.ADMIN),
   projectController.deleteProject,
 );

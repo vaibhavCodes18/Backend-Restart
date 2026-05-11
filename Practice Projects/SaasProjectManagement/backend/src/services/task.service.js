@@ -56,3 +56,26 @@ export const getAllTasksInsideProject = async (projectId) => {
     },
   });
 };
+
+export const getTaskById = async (taskId) => {
+  return await prisma.task.findUnique({
+    where: {
+      id: Number(taskId),
+    },
+    include: {
+      project: {
+        select: {
+          id: true,
+          name: true,
+        },
+      },
+      assignee: {
+        select: {
+          id: true,
+          name: true,
+          email: true,
+        },
+      },
+    },
+  });
+};

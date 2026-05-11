@@ -3,22 +3,7 @@ import prisma from "../config/prisma.js";
 
 export const allowRoles = (...roles) => {
   return async (req, res, next) => {
-    let project;
-    if (req.params.projectId !== undefined) {
-      project = await prisma.project.findFirst({
-        where: {
-          id: Number(req.params.projectId),
-        },
-      });
-    }
-
-    const workspaceMember = await prisma.workspaceMember.findFirst({
-      where: {
-        userId: req.user.id,
-        workspaceId:
-          Number(req.params.workspaceId) || Number(project.workspaceId),
-      },
-    });
+    const workspaceMember = req.workspaceMember;
 
     if (!workspaceMember) {
       return res

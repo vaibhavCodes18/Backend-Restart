@@ -17,5 +17,6 @@ router.use("/workspaces/:workspaceId/projects", projectRouter);
 
 // Tasks routes
 router.use("/projects/:projectId/tasks", taskRouter);
+router.use("/tasks", taskRouter);
 
 export default router;
