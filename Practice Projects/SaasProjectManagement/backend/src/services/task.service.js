@@ -157,3 +157,16 @@ export const assignToAnotherUser = async (taskId, assigneeId) => {
     });
   });
 };
+
+export const deleteTask = async (taskId) => {
+  return await prisma.$transaction(async (tx) => {
+    return await tx.task.update({
+      where: {
+        id: Number(taskId),
+      },
+      data: {
+        deletedAt: new Date(),
+      },
+    });
+  });
+};

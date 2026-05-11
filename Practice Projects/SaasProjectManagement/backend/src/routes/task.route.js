@@ -48,6 +48,14 @@ router.patch(
   taskController.assignToAnotherUser,
 );
 
+router.delete(
+  "/:taskId",
+  authUser,
+  taskAccess,
+  allowRoles(WorkspaceRole.OWNER, WorkspaceRole.ADMIN),
+  taskController.deleteTask,
+);
+
 
 
 export default router;

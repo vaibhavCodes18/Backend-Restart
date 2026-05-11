@@ -87,6 +87,7 @@ model Task {
   assigneeId Int?
   createdAt  DateTime @default(now())
   updatedAt  DateTime @default(now()) @updatedAt
+  deletedAt    DateTime?
 
   project  Project @relation(fields: [projectId], references: [id])
   assignee User?   @relation(fields: [assigneeId], references: [id])
