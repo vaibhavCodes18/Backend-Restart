@@ -32,4 +32,22 @@ router.get(
   taskController.getTaskById,
 );
 
+router.patch(
+  "/:taskId/status",
+  authUser,
+  taskAccess,
+  allowRoles(WorkspaceRole.OWNER, WorkspaceRole.ADMIN, WorkspaceRole.MEMBER),
+  taskController.updateTaskStatus,
+);
+
+router.patch(
+  "/:taskId/assignee",
+  authUser,
+  taskAccess,
+  allowRoles(WorkspaceRole.OWNER, WorkspaceRole.ADMIN),
+  taskController.assignToAnotherUser,
+);
+
+
+
 export default router;

@@ -79,3 +79,81 @@ export const getTaskById = async (taskId) => {
     },
   });
 };
+
+export const updateTaskStatus = async (taskId, status) => {
+  return await prisma.$transaction(async (tx) => {
+    return await tx.task.update({   
+      where: {
+        id: Number(taskId),
+      },
+      data: {
+        status,  
+      },
+      include: {
+        project: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
+        assignee: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+          },
+        },
+      },
+    });
+  });
+};
+
+export const assignToAnotherUser = async (taskId, assigneeId) => {
+  return await prisma.$transaction(async (tx) => {
+    const task = await tx.task.findUnique({
+      where: {
+        id: Number(taskId),
+      },
+    });
+
+    if (!task) {
+      throw new Error("Task not found");
+    }
+
+    const user = await tx.user.findUnique({
+      where: {
+        id: Number(assigneeId),
+      },
+    });
+
+    if (!user) {
+      throw new Error("User not found");
+    }
+
+    return await tx.task.update({
+      where: {
+        id: task.id,
+      },
+      data: {
+        assignee: {
+          connect: { id: user.id },
+        },
+      },
+      include: {
+        project: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
+        assignee: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+          },
+        },
+      },
+    });
+  });
+};

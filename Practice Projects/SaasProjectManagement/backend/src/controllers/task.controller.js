@@ -44,3 +44,33 @@ export const getTaskById = async(req, res) => {
       }
 }
 
+export const updateTaskStatus = async(req, res) => {
+  try {
+        return res.status(200).json({
+          success: true,
+          data: await taskService.updateTaskStatus(req.params.taskId, req.body.status),
+          message: "Task Status Updated Successfully",
+        });
+      } catch (error) {
+        return res.status(500).json({
+          success: false,
+          message: error.message,
+        });
+      }
+}
+
+export const assignToAnotherUser = async (req, res) => {
+  try {
+    return res.status(200).json({
+      success: true,
+      data: await taskService.assignToAnotherUser(req.params.taskId, req.body.assigneeId),
+      message: "Task Assigned to another user successfully",
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
