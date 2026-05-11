@@ -13,4 +13,11 @@ router.post(
   taskController.createTask,
 );
 
+router.get(
+  "/",
+  authUser,
+  allowRoles(WorkspaceRole.OWNER, WorkspaceRole.ADMIN, WorkspaceRole.MEMBER),
+  taskController.getAllTasksInsideProject,
+);
+
 export default router;

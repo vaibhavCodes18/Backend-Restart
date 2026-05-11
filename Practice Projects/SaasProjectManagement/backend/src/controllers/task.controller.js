@@ -13,5 +13,19 @@ export const createTask = async(req,res) => {
           message: error.message,
         });
       }
-    
+}
+
+export const getAllTasksInsideProject = async(req, res) => {
+  try {
+        return res.status(200).json({
+          success: true,
+          data: await taskService.getAllTasksInsideProject(req.params.projectId),
+          message: "All Tasks Fetched Successfully",
+        });
+      } catch (error) {
+        return res.status(500).json({
+          success: false,
+          message: error.message,
+        });
+      }
 }

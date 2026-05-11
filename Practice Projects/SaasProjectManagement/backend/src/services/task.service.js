@@ -31,3 +31,28 @@ export const createTask = async (data, projectId) => {
     },
   });
 };
+
+export const getAllTasksInsideProject = async (projectId) => {
+  return await prisma.task.findMany({
+    where: {
+      project: {
+        id: Number(projectId),
+      },
+    },
+    include: {
+      project: {
+        select: {
+          id: true,
+          name: true,
+        },
+      },
+      assignee: {
+        select: {
+          id: true,
+          name: true,
+          email: true,
+        },
+      },
+    },
+  });
+};

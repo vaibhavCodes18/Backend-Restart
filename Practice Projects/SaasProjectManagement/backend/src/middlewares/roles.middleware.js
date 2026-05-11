@@ -3,17 +3,20 @@ import prisma from "../config/prisma.js";
 
 export const allowRoles = (...roles) => {
   return async (req, res, next) => {
-
-    const project = await prisma.project.findUnique({
-      where:{
-        id: Number(req.params.projectId)
-      }
-    })
+    let project;
+    if (req.params.projectId !== undefined) {
+      project = await prisma.project.findFirst({
+        where: {
+          id: Number(req.params.projectId),
+        },
+      });
+    }
 
     const workspaceMember = await prisma.workspaceMember.findFirst({
       where: {
         userId: req.user.id,
-        workspaceId: Number(req.params.workspaceId) || Number(project.workspaceId),
+        workspaceId:
+          Number(req.params.workspaceId) || Number(project.workspaceId),
       },
     });
 
@@ -24,11 +27,9 @@ export const allowRoles = (...roles) => {
     }
 
     if (!roles.includes(workspaceMember.role)) {
-      return res
-        .status(403)
-        .json({
-          error: "Forbidden. Only owner and admin can perform this action",
-        });
+      return res.status(403).json({
+        error: "Forbidden. Only owner and admin can perform this action",
+      });
     }
     next();
   };
