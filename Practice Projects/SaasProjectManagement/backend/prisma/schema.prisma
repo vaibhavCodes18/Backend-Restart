@@ -105,20 +105,26 @@ model RefreshToken {
   user User @relation(fields: [userId], references: [id])
 }
 
-// model AuditLog {
-//   id          Int      @id @default(autoincrement())
+model AuditLog {
+  id          Int      @id @default(autoincrement())
 
-//   action      String
-//   userId      Int
+  action      String
+  userId      Int
 
-//   entityType  String
-//   entityId    Int
-// }
+  entityType  String
+  entityId    Int
+}
 
-// model Notification {
-//   id        Int      @id @default(autoincrement())
+model Notification {
+  id          Int      @id @default(autoincrement())
 
-//   userId    Int
-//   message   String
-//   isRead    Boolean  @default(false)
-// }
+  userId      Int
+
+  type        String
+
+  message     String
+
+  isRead      Boolean  @default(false)
+
+  createdAt   DateTime @default(now())
+}
