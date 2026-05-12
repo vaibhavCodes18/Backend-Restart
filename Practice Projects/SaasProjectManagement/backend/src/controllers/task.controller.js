@@ -4,7 +4,7 @@ export const createTask = async(req,res) => {
     try {
         return res.status(201).json({
           success: true,
-          data: await taskService.createTask(req.body, req.params.projectId),
+          data: await taskService.createTask(req.body, req.params.projectId, req.user.id),
           message: "Task Created Successfully",
         });
       } catch (error) {
@@ -48,7 +48,7 @@ export const updateTaskStatus = async(req, res) => {
   try {
         return res.status(200).json({
           success: true,
-          data: await taskService.updateTaskStatus(req.params.taskId, req.body.status),
+          data: await taskService.updateTaskStatus(req.params.taskId, req.body.status, req.user.id),
           message: "Task Status Updated Successfully",
         });
       } catch (error) {
@@ -63,7 +63,7 @@ export const assignToAnotherUser = async (req, res) => {
   try {
     return res.status(200).json({
       success: true,
-      data: await taskService.assignToAnotherUser(req.params.taskId, req.body.assigneeId),
+      data: await taskService.assignToAnotherUser(req.params.taskId, req.body.assigneeId, req.user.id),
       message: "Task Assigned to another user successfully",
     });
   } catch (error) {
@@ -78,7 +78,7 @@ export const deleteTask = async(req, res) => {
   try {
     return res.status(200).json({
       success: true,
-      data: await taskService.deleteTask(req.params.taskId),
+      data: await taskService.deleteTask(req.params.taskId, req.user.id),
       message: "Task Deleted Successfully",
     });
   } catch (error) {

@@ -1,34 +1,57 @@
 import { TaskStatus } from "@prisma/client";
 import prisma from "../config/prisma.js";
 
-export const createTask = async (data, projectId) => {
-  return await prisma.task.create({
-    data: {
-      title: data.title,
-      description: data.description,
-      status: TaskStatus.TODO,
-      project: {
-        connect: { id: Number(projectId) },
+export const createTask = async (data, projectId, userId) => {
+  return await prisma.$transaction(async (tx) => {
+    const task = await tx.task.create({
+      data: {
+        title: data.title,
+        description: data.description,
+        status: TaskStatus.TODO,
+        project: {
+          connect: { id: Number(projectId) },
+        },
+        assignee: data.assigneeId ? {
+          connect: { id: Number(data.assigneeId) },
+        } : undefined,
       },
-      assignee: {
-        connect: { id: Number(data.assigneeId) },
-      },
-    },
-    include: {
-      project: {
-        select: {
-          id: true,
-          name: true,
+      include: {
+        project: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
+        assignee: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+          },
         },
       },
-      assignee: {
-        select: {
-          id: true,
-          name: true,
-          email: true,
-        },
+    });
+
+    await tx.auditLog.create({
+      data: {
+        action: "CREATE_TASK",
+        userId: Number(userId),
+        entityType: "Task",
+        entityId: task.id,
       },
-    },
+    });
+
+    if (data.assigneeId && Number(data.assigneeId) !== Number(userId)) {
+      await tx.notification.create({
+        data: {
+          userId: Number(data.assigneeId),
+          type: "TASK_ASSIGNED",
+          message: `You have been assigned a new task: "${task.title}"`,
+        },
+      });
+    }
+
+    return task;
   });
 };
 
@@ -80,9 +103,9 @@ export const getTaskById = async (taskId) => {
   });
 };
 
-export const updateTaskStatus = async (taskId, status) => {
+export const updateTaskStatus = async (taskId, status, userId) => {
   return await prisma.$transaction(async (tx) => {
-    return await tx.task.update({   
+    const task = await tx.task.update({   
       where: {
         id: Number(taskId),
       },
@@ -105,10 +128,31 @@ export const updateTaskStatus = async (taskId, status) => {
         },
       },
     });
+
+    await tx.auditLog.create({
+      data: {
+        action: "UPDATE_TASK_STATUS",
+        userId: Number(userId),
+        entityType: "Task",
+        entityId: task.id,
+      },
+    });
+
+    if (task.assignee?.id && Number(task.assignee.id) !== Number(userId)) {
+      await tx.notification.create({
+        data: {
+          userId: Number(task.assignee.id),
+          type: "TASK_STATUS_UPDATED",
+          message: `The status of your task "${task.title}" has been updated to ${status}.`,
+        },
+      });
+    }
+
+    return task;
   });
 };
 
-export const assignToAnotherUser = async (taskId, assigneeId) => {
+export const assignToAnotherUser = async (taskId, assigneeId, userId) => {
   return await prisma.$transaction(async (tx) => {
     const task = await tx.task.findUnique({
       where: {
@@ -130,7 +174,7 @@ export const assignToAnotherUser = async (taskId, assigneeId) => {
       throw new Error("User not found");
     }
 
-    return await tx.task.update({
+    const updatedTask = await tx.task.update({
       where: {
         id: task.id,
       },
@@ -155,12 +199,43 @@ export const assignToAnotherUser = async (taskId, assigneeId) => {
         },
       },
     });
+
+    await tx.auditLog.create({
+      data: {
+        action: "ASSIGN_TASK",
+        userId: Number(userId),
+        entityType: "Task",
+        entityId: task.id,
+      },
+    });
+
+    if (Number(assigneeId) !== Number(userId)) {
+      await tx.notification.create({
+        data: {
+          userId: Number(assigneeId),
+          type: "TASK_ASSIGNED",
+          message: `You have been assigned to task: "${updatedTask.title}".`,
+        },
+      });
+    }
+
+    if (task.assigneeId && Number(task.assigneeId) !== Number(assigneeId) && Number(task.assigneeId) !== Number(userId)) {
+      await tx.notification.create({
+        data: {
+          userId: Number(task.assigneeId),
+          type: "TASK_UNASSIGNED",
+          message: `You have been unassigned from task: "${task.title}".`,
+        },
+      });
+    }
+
+    return updatedTask;
   });
 };
 
-export const deleteTask = async (taskId) => {
+export const deleteTask = async (taskId, userId) => {
   return await prisma.$transaction(async (tx) => {
-    return await tx.task.update({
+    const task = await tx.task.update({
       where: {
         id: Number(taskId),
       },
@@ -168,5 +243,26 @@ export const deleteTask = async (taskId) => {
         deletedAt: new Date(),
       },
     });
+
+    await tx.auditLog.create({
+      data: {
+        action: "DELETE_TASK",
+        userId: Number(userId),
+        entityType: "Task",
+        entityId: task.id,
+      },
+    });
+
+    if (task.assigneeId && Number(task.assigneeId) !== Number(userId)) {
+      await tx.notification.create({
+        data: {
+          userId: Number(task.assigneeId),
+          type: "TASK_DELETED",
+          message: `The task "${task.title}" assigned to you has been deleted.`,
+        },
+      });
+    }
+
+    return task;
   });
 };
